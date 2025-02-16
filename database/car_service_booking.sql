@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Feb 16, 2025 at 05:50 AM
+-- Generation Time: Feb 16, 2025 at 05:50 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -58,6 +58,36 @@ CREATE TABLE `cars` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `cars`
+--
+
+INSERT INTO `cars` (`id`, `user_id`, `make`, `model`, `year`, `reg_number`, `mileage`, `last_service_date`, `created_at`, `updated_at`) VALUES
+(1, 4, 'bmw', 'i8', 2020, '2345', 2300, '2025-02-06', '2025-02-16 16:18:29', '2025-02-16 16:18:29');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `email_verifications`
+--
+
+CREATE TABLE `email_verifications` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `used` tinyint(1) DEFAULT 0,
+  `used_at` datetime DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `email_verifications`
+--
+
+INSERT INTO `email_verifications` (`id`, `user_id`, `token`, `expires_at`, `used`, `used_at`, `created_at`) VALUES
+(3, 4, '4588b2fa52c44328fbfdbbab00e56d7f5d93771fce46e77cab9abe6a1b1ebe16', '2025-02-17 16:18:29', 0, NULL, '2025-02-16 16:18:29');
 
 -- --------------------------------------------------------
 
@@ -136,15 +166,16 @@ CREATE TABLE `users` (
   `status` enum('active','inactive','suspended') DEFAULT 'active',
   `last_login` datetime DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `email_verified` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `status`, `last_login`, `created_at`, `updated_at`) VALUES
-(1, 'Admin User', 'admin@fixit.com', '$2y$10$8K1p/a4SgKI5gZkm9lGtHOZcgoRqQhUWf0TmyRqCQGFFJJWj3cEuW', '1234567890', 'active', NULL, '2025-02-16 02:25:06', '2025-02-16 02:25:06');
+INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `status`, `last_login`, `created_at`, `updated_at`, `email_verified`) VALUES
+(4, 'Sandun Bandara', 'sandunsbandara13@gmail.com', '$2y$10$EXJjaEJMjute6Xv1YbXWK.9Q93XjZxatyARlfAQHzGNvpLv1o.Xja', '0764162860', 'active', NULL, '2025-02-16 16:18:29', '2025-02-16 16:42:28', 1);
 
 --
 -- Indexes for dumped tables
@@ -165,6 +196,13 @@ ALTER TABLE `bookings`
 ALTER TABLE `cars`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `reg_number` (`reg_number`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `email_verifications`
+--
+ALTER TABLE `email_verifications`
+  ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
 
 --
@@ -210,7 +248,13 @@ ALTER TABLE `bookings`
 -- AUTO_INCREMENT for table `cars`
 --
 ALTER TABLE `cars`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `email_verifications`
+--
+ALTER TABLE `email_verifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `services`
@@ -234,7 +278,7 @@ ALTER TABLE `service_recommendations`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables
@@ -253,6 +297,12 @@ ALTER TABLE `bookings`
 --
 ALTER TABLE `cars`
   ADD CONSTRAINT `cars_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `email_verifications`
+--
+ALTER TABLE `email_verifications`
+  ADD CONSTRAINT `email_verifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `service_history`
