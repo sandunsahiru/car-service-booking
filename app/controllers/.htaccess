@@ -1,0 +1,13 @@
+# Prevent direct access to PHP files
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_METHOD} !POST
+    RewriteRule ^ - [F]
+</IfModule>
+
+# PHP Settings
+<IfModule mod_php.c>
+    php_flag display_errors off
+    php_value error_reporting E_ALL
+    php_value error_log ../../logs/error.log
+</IfModule>
