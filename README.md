@@ -52,7 +52,7 @@ A modern web application for booking and managing car service appointments with 
 
 - **Backend**
   - PHP 8.2
-  - MySQL/MariaDB
+  - MySQL
   - PDO for database operations
 
 - **Security**
@@ -65,7 +65,7 @@ A modern web application for booking and managing car service appointments with 
 ## 📋 Prerequisites
 
 - PHP >= 8.2
-- MySQL/MariaDB >= 10.4
+- MySQL >= 10.4
 - Apache/Nginx web server
 - Composer (for dependency management)
 - Web browser with JavaScript enabled
@@ -158,7 +158,11 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## 👥 Authors
 
-- Your Name - *Initial work* - [YourGithub](https://github.com/yourusername)
+- Sandun Sahiru - *Initial work* - [YourGithub](https://github.com/sandunsahiru)
+- Thiwanga - *Initial work* - [YourGithub](https://github.com/username)
+- Kithmini - *Initial work* - [YourGithub](https://github.com/username)
+- Sanjula - *Initial work* - [YourGithub](https://github.com/username)
+- Eraji - *Initial work* - [YourGithub](https://github.com/username)
 
 ## 🙏 Acknowledgments
 
