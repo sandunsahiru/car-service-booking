@@ -31,7 +31,7 @@ class Car {
                     year, 
                     reg_number, 
                     mileage, 
-                    last_service_date,  -- Changed from last_service to last_service_date
+                    last_service_date,
                     created_at
                    ) VALUES (
                     :user_id, 
@@ -40,11 +40,9 @@ class Car {
                     :year, 
                     :reg_number, 
                     :mileage, 
-                    :last_service_date,  -- Changed parameter name to match
+                    :last_service_date,
                     NOW()
                    )";
-            
-            $stmt = $this->db->prepare($sql);
             
             $params = [
                 ':user_id' => $data['user_id'],
@@ -53,18 +51,17 @@ class Car {
                 ':year' => $data['year'],
                 ':reg_number' => $data['reg_number'],
                 ':mileage' => $data['mileage'],
-                ':last_service_date' => $data['last_service'] // Keep the input parameter name as is for backward compatibility
+                ':last_service_date' => !empty($data['last_service']) ? date('Y-m-d', strtotime($data['last_service'])) : null
             ];
     
-            error_log("Creating new car record for user ID: {$data['user_id']}, Registration: {$data['reg_number']}");
-    
+            $stmt = $this->db->prepare($sql);
             return $stmt->execute($params);
-    
         } catch (PDOException $e) {
             error_log("Database error while creating car record: " . $e->getMessage());
             throw new Exception('Failed to create car record');
         }
     }
+
     
     
 
@@ -292,21 +289,19 @@ class Car {
             if (!$car) {
                 throw new Exception('Car not found');
             }
-
-            // Calculate next service based on mileage and last service date
-            $lastService = $car['last_service'] ? new DateTime($car['last_service']) : null;
+    
+            $lastService = $car['last_service_date'] ? new DateTime($car['last_service_date']) : null;
             $nextService = $lastService ? (clone $lastService)->modify('+6 months') : null;
             
             return [
                 'car_id' => $carId,
                 'current_mileage' => $car['mileage'],
-                'last_service' => $lastService ? $lastService->format('Y-m-d') : null,
+                'last_service_date' => $lastService ? $lastService->format('Y-m-d') : null,
                 'next_service' => $nextService ? $nextService->format('Y-m-d') : null,
                 'service_interval_months' => 6,
                 'service_interval_miles' => 5000,
                 'needs_service' => $this->checkIfServiceNeeded($car)
             ];
-
         } catch (Exception $e) {
             error_log("Error getting maintenance schedule: " . $e->getMessage());
             throw new Exception('Failed to get maintenance schedule');
@@ -320,27 +315,21 @@ class Car {
      * @return bool True if service needed, false otherwise
      */
     private function checkIfServiceNeeded(array $car): bool {
-        // Service needed if:
-        // 1. No last service date recorded
-        // 2. Last service was more than 6 months ago
-        // 3. Mileage increased by more than 5000 since last service
-        
-        if (empty($car['last_service'])) {
+        // Update to use last_service_date instead of last_service
+        if (empty($car['last_service_date'])) {
             return true;
         }
 
-        $lastService = new DateTime($car['last_service']);
+        $lastService = new DateTime($car['last_service_date']);
         $sixMonthsAgo = new DateTime('-6 months');
         
         if ($lastService < $sixMonthsAgo) {
             return true;
         }
 
-        // Note: This assumes we store last service mileage in the database
-        // You might need to adjust this logic based on your actual data structure
         $mileageSinceService = isset($car['last_service_mileage']) 
             ? $car['mileage'] - $car['last_service_mileage']
-            : 5001; // If we don't have the data, assume service is needed
+            : 5001;
 
         return $mileageSinceService > 5000;
     }

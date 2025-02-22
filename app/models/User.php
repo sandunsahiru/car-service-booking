@@ -740,4 +740,36 @@ class User
             throw new Exception('Failed to verify email');
         }
     }
+    /**
+     * Get user by email
+     */
+    public function getByEmail(string $email): ?array
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        } catch (PDOException $e) {
+            error_log("Database error in getByEmail: " . $e->getMessage());
+            throw new Exception('Database error occurred');
+        }
+    }
+
+    /**
+     * Store remember me token
+     */
+    public function storeRememberToken(int $userId, string $token, int $expiry): bool
+    {
+        try {
+            $stmt = $this->db->prepare(
+                "INSERT INTO user_tokens (user_id, token, expiry) 
+                 VALUES (?, ?, FROM_UNIXTIME(?))
+                 ON DUPLICATE KEY UPDATE token = VALUES(token), expiry = VALUES(expiry)"
+            );
+            return $stmt->execute([$userId, $token, $expiry]);
+        } catch (PDOException $e) {
+            error_log("Database error in storeRememberToken: " . $e->getMessage());
+            throw new Exception('Database error occurred');
+        }
+    }
 }

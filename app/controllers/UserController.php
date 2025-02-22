@@ -244,7 +244,7 @@ class UserController
                 'year' => $year,
                 'reg_number' => strtoupper(trim($_POST['reg_number'])),
                 'mileage' => $mileage,
-                'last_service' => !empty($_POST['last_service']) ? date('Y-m-d', strtotime($_POST['last_service'])) : null
+                'last_service_date' => !empty($_POST['last_service']) ? date('Y-m-d', strtotime($_POST['last_service'])) : null
             ];
 
             if (!$this->car->create($carData)) {
@@ -255,6 +255,86 @@ class UserController
         } catch (Exception $e) {
             error_log("Vehicle registration error: " . $e->getMessage());
             throw $e; // Re-throw to be handled by the main registration process
+        }
+    }
+    /**
+     * Handle user login
+     */
+    public function login(): void
+    {
+        try {
+            error_log("Starting login process");
+
+            // Validate request method
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                error_log("Invalid request method: " . $_SERVER['REQUEST_METHOD']);
+                $this->sendResponse(['error' => 'Invalid request method'], 405);
+            }
+
+            // Validate request and CSRF
+            $this->validateRequestHeaders();
+            $this->validateCSRFToken();
+
+            // Validate required fields
+            if (empty($_POST['email']) || empty($_POST['password'])) {
+                error_log("Missing required login fields");
+                $this->sendResponse(['error' => 'Email and password are required'], 400);
+            }
+
+            // Validate email format
+            if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+                error_log("Invalid email format: " . $_POST['email']);
+                $this->sendResponse(['error' => 'Invalid email format'], 400);
+            }
+
+            // Get user by email
+            $userData = $this->user->getByEmail($_POST['email']);
+            if (!$userData) {
+                error_log("Login failed: User not found for email: " . $_POST['email']);
+                $this->sendResponse(['error' => 'Invalid email or password'], 401);
+            }
+
+            // Verify password
+            if (!password_verify($_POST['password'], $userData['password'])) {
+                error_log("Login failed: Invalid password for email: " . $_POST['email']);
+                $this->sendResponse(['error' => 'Invalid email or password'], 401);
+            }
+
+            // Set session data
+            $_SESSION['user_id'] = $userData['id'];
+            $_SESSION['user_name'] = $userData['name'];
+            $_SESSION['last_activity'] = time();
+
+            // Handle remember me
+            if (!empty($_POST['remember'])) {
+                // Set remember me cookie - 30 days
+                $token = bin2hex(random_bytes(32));
+                $expiry = time() + (30 * 24 * 60 * 60);
+                
+                // Store token in database
+                $this->user->storeRememberToken($userData['id'], $token, $expiry);
+                
+                // Set secure cookie
+                setcookie('remember_token', $token, [
+                    'expires' => $expiry,
+                    'path' => '/',
+                    'domain' => '',
+                    'secure' => isset($_SERVER['HTTPS']),
+                    'httponly' => true,
+                    'samesite' => 'Strict'
+                ]);
+            }
+
+            error_log("Login successful for user ID: " . $userData['id']);
+
+            // Send success response
+            $this->sendResponse([
+                'success' => true,
+                'redirect' => BASE_PATH . '/public/dashboard.php'
+            ]);
+        } catch (Exception $e) {
+            error_log("Login error: " . $e->getMessage());
+            $this->sendResponse(['error' => $e->getMessage()], 400);
         }
     }
 }
@@ -270,6 +350,9 @@ try {
     switch ($_POST['action']) {
         case 'register':
             $controller->register();
+            break;
+        case 'login':
+            $controller->login();
             break;
         default:
             throw new Exception('Invalid action');
