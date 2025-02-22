@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Feb 16, 2025 at 05:50 PM
+-- Generation Time: Feb 22, 2025 at 06:36 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -177,6 +177,20 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `status`, `last_login`, `created_at`, `updated_at`, `email_verified`) VALUES
 (4, 'Sandun Bandara', 'sandunsbandara13@gmail.com', '$2y$10$EXJjaEJMjute6Xv1YbXWK.9Q93XjZxatyARlfAQHzGNvpLv1o.Xja', '0764162860', 'active', NULL, '2025-02-16 16:18:29', '2025-02-16 16:42:28', 1);
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_tokens`
+--
+
+CREATE TABLE `user_tokens` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `token` varchar(64) NOT NULL,
+  `expiry` datetime NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 --
 -- Indexes for dumped tables
 --
@@ -235,6 +249,13 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `email` (`email`);
 
 --
+-- Indexes for table `user_tokens`
+--
+ALTER TABLE `user_tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_token` (`user_id`,`token`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -281,6 +302,12 @@ ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT for table `user_tokens`
+--
+ALTER TABLE `user_tokens`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- Constraints for dumped tables
 --
 
@@ -317,6 +344,12 @@ ALTER TABLE `service_history`
 ALTER TABLE `service_recommendations`
   ADD CONSTRAINT `service_recommendations_ibfk_1` FOREIGN KEY (`car_id`) REFERENCES `cars` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `service_recommendations_ibfk_2` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`);
+
+--
+-- Constraints for table `user_tokens`
+--
+ALTER TABLE `user_tokens`
+  ADD CONSTRAINT `user_tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
