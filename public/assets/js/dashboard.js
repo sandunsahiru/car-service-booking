@@ -431,3 +431,32 @@ function showAlert(type, message) {
     alertContainer.appendChild(alert);
     setTimeout(() => alert.remove(), 5000);
 }
+
+
+/**
+ * Helper function to convert timestamp to "time ago" format
+ */
+function timeAgo(timestamp) {
+    const date = new Date(timestamp);
+    const currentTime = new Date();
+    const timeDifference = Math.floor((currentTime - date) / 1000); // in seconds
+    
+    if (timeDifference < 60) {
+        return 'Just now';
+    } else if (timeDifference < 3600) {
+        const minutes = Math.floor(timeDifference / 60);
+        return minutes + ' minute' + (minutes > 1 ? 's' : '') + ' ago';
+    } else if (timeDifference < 86400) {
+        const hours = Math.floor(timeDifference / 3600);
+        return hours + ' hour' + (hours > 1 ? 's' : '') + ' ago';
+    } else if (timeDifference < 2592000) {
+        const days = Math.floor(timeDifference / 86400);
+        return days + ' day' + (days > 1 ? 's' : '') + ' ago';
+    } else if (timeDifference < 31536000) {
+        const months = Math.floor(timeDifference / 2592000);
+        return months + ' month' + (months > 1 ? 's' : '') + ' ago';
+    } else {
+        const years = Math.floor(timeDifference / 31536000);
+        return years + ' year' + (years > 1 ? 's' : '') + ' ago';
+    }
+}

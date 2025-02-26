@@ -48,12 +48,14 @@ require_once(__DIR__ . '/../app/models/Car.php');
 require_once(__DIR__ . '/../app/models/Booking.php');
 require_once(__DIR__ . '/../app/models/ServiceHistory.php');
 require_once(__DIR__ . '/../app/models/ServiceRecommendation.php');
+require_once(__DIR__ . '/../app/models/Notification.php');
 
 $user = new User($pdo);
 $car = new Car($pdo);
 $booking = new Booking($pdo);
 $serviceHistory = new ServiceHistory($pdo);
 $recommendation = new ServiceRecommendation($pdo);
+$notification = new Notification($pdo); // Add this line
 
 try {
     $userData = $user->getUserById($_SESSION['user_id']);
@@ -61,6 +63,8 @@ try {
     $upcomingBookings = $booking->getUpcomingBookings($_SESSION['user_id'], 2);
     $recentServices = $serviceHistory->getRecentHistory($_SESSION['user_id'], 3);
     $recommendations = $recommendation->getPendingRecommendations($_SESSION['user_id']);
+    $userNotifications = $notification->getUserNotifications($_SESSION['user_id'], 3); // Add this line
+    $unreadCount = $notification->getUnreadCount($_SESSION['user_id']); // Add this line
 } catch (Exception $e) {
     error_log("Dashboard data loading error: " . $e->getMessage());
     // Handle error appropriately
@@ -127,7 +131,7 @@ ob_end_flush();
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="bookings.php">
+                            <a href="booking.php">
                                 <i class="bi bi-calendar-check"></i>
                                 <span>My Bookings</span>
                             </a>
@@ -182,66 +186,94 @@ ob_end_flush();
         <!-- Main Content -->
         <main class="dashboard-main">
             <!-- Top Navigation remains the same -->
-            <nav class="dashboard-topnav">
-                <div class="d-flex align-items-center gap-3">
-                    <button id="mobileSidebarToggle" class="d-lg-none btn btn-icon">
-                        <i class="bi bi-list"></i>
-                    </button>
-                    <div class="page-title">Dashboard</div>
-                </div>
+            <!-- This is the corrected topnav section for dashboard.php -->
+<nav class="dashboard-topnav">
+    <div class="d-flex align-items-center gap-3">
+        <button id="mobileSidebarToggle" class="d-lg-none btn btn-icon">
+            <i class="bi bi-list"></i>
+        </button>
+        <div class="page-title">Dashboard</div>
+    </div>
 
-                <div class="d-flex align-items-center gap-3">
-                    <div class="dropdown">
-                        <button class="btn btn-icon" data-bs-toggle="dropdown">
-                            <i class="bi bi-bell"></i>
-                            <span class="notification-badge">3</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end notification-dropdown">
-                            <h6 class="dropdown-header">Notifications</h6>
-                            <a class="dropdown-item" href="#">
-                                <div class="notification-item">
-                                    <div class="icon text-primary">
-                                        <i class="bi bi-calendar-check"></i>
-                                    </div>
-                                    <div class="content">
-                                        <div class="title">Upcoming Service</div>
-                                        <div class="text">Your vehicle service is due in 3 days</div>
-                                        <div class="time">2 hours ago</div>
-                                    </div>
-                                </div>
-                            </a>
-                            <!-- Add more notification items here -->
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-center" href="notifications.php">
-                                View All Notifications
-                            </a>
-                        </div>
+    <div class="d-flex align-items-center gap-3">
+        <div class="dropdown">
+            <button class="btn btn-icon" data-bs-toggle="dropdown">
+                <i class="bi bi-bell"></i>
+                <?php if ($unreadCount > 0): ?>
+                <span class="notification-badge"><?php echo $unreadCount; ?></span>
+                <?php endif; ?>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end notification-dropdown">
+                <h6 class="dropdown-header">Notifications</h6>
+                <?php if (empty($userNotifications)): ?>
+                    <div class="p-3 text-center text-muted">
+                        <small>No new notifications</small>
                     </div>
-
-                    <div class="dropdown">
-                        <button class="btn btn-icon" data-bs-toggle="dropdown">
-                            <div class="user-avatar">
-                                <?php echo strtoupper(substr($userData['name'], 0, 1)); ?>
+                <?php else: ?>
+                    <?php 
+                    $count = 0;
+                    foreach ($userNotifications as $notification): 
+                        if ($count >= 3) break; // Show only 3 in dropdown
+                        $count++;
+                        
+                        $iconClass = 'bi bi-info-circle';
+                        switch ($notification['type']) {
+                            case 'service_reminder':
+                                $iconClass = 'bi bi-calendar-check';
+                                break;
+                            case 'booking_confirmation':
+                                $iconClass = 'bi bi-check-circle';
+                                break;
+                            case 'system':
+                                $iconClass = 'bi bi-gear';
+                                break;
+                        }
+                    ?>
+                    <a class="dropdown-item" href="#">
+                        <div class="notification-item">
+                            <div class="icon text-primary">
+                                <i class="<?php echo $iconClass; ?>"></i>
                             </div>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end">
-                            <h6 class="dropdown-header">
-                                Welcome, <?php echo htmlspecialchars($userData['name']); ?>
-                            </h6>
-                            <a class="dropdown-item" href="profile.php">
-                                <i class="bi bi-person"></i> My Profile
-                            </a>
-                            <a class="dropdown-item" href="settings.php">
-                                <i class="bi bi-gear"></i> Settings
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger" href="logout.php">
-                                <i class="bi bi-box-arrow-right"></i> Logout
-                            </a>
+                            <div class="content">
+                                <div class="title"><?php echo htmlspecialchars($notification['title']); ?></div>
+                                <div class="text"><?php echo htmlspecialchars($notification['message']); ?></div>
+                                <div class="time"><?php echo timeAgo($notification['created_at']); ?></div>
+                            </div>
                         </div>
-                    </div>
+                    </a>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item text-center" href="notifications.php">
+                    View All Notifications
+                </a>
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <button class="btn btn-icon" data-bs-toggle="dropdown">
+                <div class="user-avatar">
+                    <?php echo strtoupper(substr($userData['name'], 0, 1)); ?>
                 </div>
-            </nav>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end">
+                <h6 class="dropdown-header">
+                    Welcome, <?php echo htmlspecialchars($userData['name']); ?>
+                </h6>
+                <a class="dropdown-item" href="profile.php">
+                    <i class="bi bi-person"></i> My Profile
+                </a>
+                <a class="dropdown-item" href="settings.php">
+                    <i class="bi bi-gear"></i> Settings
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item text-danger" href="logout.php">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
 
             <!-- Dashboard Content -->
             <div class="dashboard-content">
@@ -522,3 +554,34 @@ ob_end_flush();
 </body>
 
 </html>
+
+<?php
+/**
+ * Helper function to convert timestamp to "time ago" format
+ */
+function timeAgo($timestamp) {
+    $timestamp = strtotime($timestamp);
+    $current_time = time();
+    $time_difference = $current_time - $timestamp;
+    
+    if ($time_difference < 60) {
+        return 'Just now';
+    } elseif ($time_difference < 3600) {
+        $minutes = floor($time_difference / 60);
+        return $minutes . ' minute' . ($minutes > 1 ? 's' : '') . ' ago';
+    } elseif ($time_difference < 86400) {
+        $hours = floor($time_difference / 3600);
+        return $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ago';
+    } elseif ($time_difference < 2592000) {
+        $days = floor($time_difference / 86400);
+        return $days . ' day' . ($days > 1 ? 's' : '') . ' ago';
+    } elseif ($time_difference < 31536000) {
+        $months = floor($time_difference / 2592000);
+        return $months . ' month' . ($months > 1 ? 's' : '') . ' ago';
+    } else {
+        $years = floor($time_difference / 31536000);
+        return $years . ' year' . ($years > 1 ? 's' : '') . ' ago';
+    }
+}
+
+?>

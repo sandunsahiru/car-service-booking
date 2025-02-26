@@ -6,12 +6,7 @@
                     <!-- Company Info -->
                     <div class="col-md-3 col-sm-6">
                         <h5 class="fw-bold mb-3">
-                            <img src="<?php echo BASE_PATH; ?>/public/assets/images/logo-white.svg" 
-                                 alt="Fix It Logo" 
-                                 width="24" 
-                                 height="24" 
-                                 class="d-inline-block align-text-top me-2">
-                            Fix It
+                            <span class="text-primary me-2">Fix It</span>
                         </h5>
                         <p class="text-muted mb-3">Smart car service for modern drivers</p>
                         <div class="social-links">
@@ -247,9 +242,6 @@
             });
         </script>
 
-        <!-- Custom JS -->
-       
-
         <!-- Add custom styles -->
         <style>
             .hover-text-primary:hover {
@@ -291,6 +283,7 @@
                 transform: translateY(-3px);
             }
 
+            /* Fix for mobile display */
             @media (max-width: 767.98px) {
                 .footer-heading::after {
                     left: 50%;
@@ -312,13 +305,14 @@
                 }
             }
 
+            /* Make sure text is visible with proper contrast */
+            .text-muted {
+                color: rgba(255, 255, 255, 0.6) !important;
+            }
+
             .cookie-consent {
                 box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
             }
         </style>
-        <!-- Bootstrap Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" 
-        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" 
-        crossorigin="anonymous"></script>
     </body>
 </html>

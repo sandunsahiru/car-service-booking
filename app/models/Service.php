@@ -14,7 +14,18 @@ class Service {
     public function getAllServices(): array {
         try {
             $stmt = $this->db->query("SELECT * FROM services ORDER BY price ASC");
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Ensure price is always a float
+            foreach ($services as &$service) {
+                if (isset($service['price'])) {
+                    $service['price'] = (float)$service['price'];
+                } else {
+                    $service['price'] = 0.00;
+                }
+            }
+            
+            return $services;
         } catch (PDOException $e) {
             error_log("Error getting services: " . $e->getMessage());
             throw new Exception('Failed to get services');
@@ -28,7 +39,14 @@ class Service {
         try {
             $stmt = $this->db->prepare("SELECT * FROM services WHERE id = ?");
             $stmt->execute([$serviceId]);
-            return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+            $service = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($service) {
+                // Ensure price is a float
+                $service['price'] = isset($service['price']) ? (float)$service['price'] : 0.00;
+            }
+            
+            return $service ?: null;
         } catch (PDOException $e) {
             error_log("Error getting service: " . $e->getMessage());
             throw new Exception('Failed to get service details');
@@ -42,7 +60,10 @@ class Service {
         try {
             $stmt = $this->db->prepare("SELECT price FROM services WHERE id = ?");
             $stmt->execute([$serviceId]);
-            return (float)$stmt->fetchColumn();
+            $price = $stmt->fetchColumn();
+            
+            // Ensure we return a float, default to 0.00 if null
+            return $price !== false ? (float)$price : 0.00;
         } catch (PDOException $e) {
             error_log("Error getting service price: " . $e->getMessage());
             throw new Exception('Failed to get service price');
