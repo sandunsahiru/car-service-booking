@@ -319,7 +319,7 @@ ob_end_flush();
                         <div class="stat-card">
                             <div class="stat-card-info">
                                 <div class="stat-card-title">Total Spent</div>
-                                <div class="stat-card-value">$<?php echo number_format($totalServiceCost, 2); ?></div>
+                                <div class="stat-card-value">Rs.<?php echo number_format($totalServiceCost, 2); ?></div>
                             </div>
                             <div class="stat-card-icon">
                                 <i class="bi bi-cash"></i>

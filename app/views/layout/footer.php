@@ -118,8 +118,8 @@
                                    target="_blank" 
                                    rel="noopener noreferrer">
                                     <i class="bi bi-geo-alt me-2"></i>
-                                    1234 Service Road<br>
-                                    <span class="ms-4">City, State 12345</span>
+                                    No.143/B/3,<br>
+                                    <span class="ms-4">Oruwala, 10150</span>
                                 </a>
                             </li>
                             <li class="mb-3">
@@ -133,7 +133,7 @@
                                 <a href="tel:+1234567890" 
                                    class="text-muted text-decoration-none hover-text-primary">
                                     <i class="bi bi-telephone me-2"></i>
-                                    (123) 456-7890
+                                    0112 640 640
                                 </a>
                             </li>
                             <li>

@@ -308,7 +308,7 @@ ob_end_flush();
                         <div class="stat-card">
                             <div class="stat-card-info">
                                 <div class="stat-card-title">Total Spent</div>
-                                <div class="stat-card-value">$<?php echo number_format($totalSpent, 2); ?></div>
+                                <div class="stat-card-value">Rs.<?php echo number_format($totalSpent, 2); ?></div>
                             </div>
                             <div class="stat-card-icon">
                                 <i class="bi bi-cash"></i>
@@ -321,7 +321,7 @@ ob_end_flush();
                             <div class="stat-card-info">
                                 <div class="stat-card-title">Average Cost</div>
                                 <div class="stat-card-value">
-                                    $<?php 
+                                    Rs.<?php 
                                         $avgCost = count($historyEntries) > 0 ? $totalSpent / count($historyEntries) : 0;
                                         echo number_format($avgCost, 2); 
                                     ?>
@@ -463,7 +463,7 @@ ob_end_flush();
                                                         <td><?php echo $serviceName; ?></td>
                                                         <td><?php echo $description; ?></td>
                                                         <td><?php echo $mileage; ?></td>
-                                                        <td>$<?php echo number_format($cost, 2); ?></td>
+                                                        <td>Rs.<?php echo number_format($cost, 2); ?></td>
                                                         <td>
                                                             <div class="btn-group">
                                                                 <a href="view-service-details.php?id=<?php echo $entryId; ?>" class="btn btn-sm btn-outline-primary">
